@@ -74,9 +74,23 @@ static int ipvs_nl_noop_cb(struct nl_msg *msg, void *arg)
 	return NL_OK;
 }
 
+struct cb_err_data {
+	int	err;
+};
+
+static int ipvs_nl_err_cb(struct sockaddr_nl *nla, struct nlmsgerr *nlerr,
+			  void *arg)
+{
+	struct cb_err_data *data = arg;
+
+	data->err = nlerr->error;
+	return -nl_syserr2nlerr(nlerr->error);
+}
+
 int ipvs_nl_send_message(struct nl_msg *msg, nl_recvmsg_msg_cb_t func, void *arg)
 {
 	int err = EINVAL;
+	struct cb_err_data err_data = { .err = 0 };
 
 	sock = nl_socket_alloc();
 	if (!sock) {
@@ -100,12 +114,18 @@ int ipvs_nl_send_message(struct nl_msg *msg, nl_recvmsg_msg_cb_t func, void *arg
 
 	if (nl_socket_modify_cb(sock, NL_CB_VALID, NL_CB_CUSTOM, func, arg) != 0)
 		goto fail_genl;
+	if (nl_socket_modify_err_cb(sock, NL_CB_CUSTOM, ipvs_nl_err_cb,
+				    &err_data) != 0)
+		goto fail_genl;
 
 	if (nl_send_auto_complete(sock, msg) < 0)
 		goto fail_genl;
 
-	if ((err = -nl_recvmsgs_default(sock)) > 0)
+	if (nl_recvmsgs_default(sock) < 0) {
+		if (err_data.err)
+			err = -err_data.err;
 		goto fail_genl;
+	}
 
 	nlmsg_free(msg);
 
