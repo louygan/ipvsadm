@@ -63,7 +63,7 @@ struct nl_msg *ipvs_nl_message(int cmd, int flags)
 	if (!msg)
 		return NULL;
 
-	genlmsg_put(msg, NL_AUTO_PID, NL_AUTO_SEQ, family, 0, flags,
+	genlmsg_put(msg, NL_AUTO_PORT, NL_AUTO_SEQ, family, 0, flags,
 		    cmd, IPVS_GENL_VERSION);
 
 	return msg;
