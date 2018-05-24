@@ -595,7 +595,7 @@ parse_options(int argc, char **argv, struct ipvs_command_entry *ce,
 		case 's':
 			set_option(options, OPT_SCHEDULER);
 			strncpy(ce->svc.sched_name,
-				optarg, IP_VS_SCHEDNAME_MAXLEN);
+				optarg, IP_VS_SCHEDNAME_MAXLEN - 1);
 			break;
 		case 'p':
 			set_option(options, OPT_PERSISTENT);
@@ -670,7 +670,7 @@ parse_options(int argc, char **argv, struct ipvs_command_entry *ce,
 		case TAG_MCAST_INTERFACE:
 			set_option(options, OPT_MCAST);
 			strncpy(ce->daemon.mcast_ifn,
-				optarg, IP_VS_IFNAME_MAXLEN);
+				optarg, IP_VS_IFNAME_MAXLEN - 1);
 			break;
 		case 'I':
 			set_option(options, OPT_SYNCID);
@@ -1415,8 +1415,8 @@ static void print_conn(char *buf, unsigned int format)
 	unsigned int    expires;
 	unsigned short  af = AF_INET;
 	unsigned short  daf = AF_INET;
-	char		pe_name[IP_VS_PENAME_MAXLEN];
-	char		pe_data[IP_VS_PEDATA_MAXLEN];
+	char		pe_name[IP_VS_PENAME_MAXLEN + 1];
+	char		pe_data[IP_VS_PEDATA_MAXLEN + 1];
 
 	int n;
 	char temp1[INET6_ADDRSTRLEN], temp2[INET6_ADDRSTRLEN], temp3[INET6_ADDRSTRLEN];

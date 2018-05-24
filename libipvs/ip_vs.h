@@ -144,7 +144,7 @@ struct ip_vs_service_user {
 	__be32			netmask;	/* persistent netmask */
 	u_int16_t		af;
 	union nf_inet_addr	addr;
-	char			pe_name[IP_VS_PENAME_MAXLEN];
+	char			pe_name[IP_VS_PENAME_MAXLEN + 1];
 };
 
 struct ip_vs_dest_kern {
@@ -267,7 +267,7 @@ struct ip_vs_service_entry {
 
 	u_int16_t		af;
 	union nf_inet_addr	addr;
-	char			pe_name[IP_VS_PENAME_MAXLEN];
+	char			pe_name[IP_VS_PENAME_MAXLEN + 1];
 
 	/* statistics, 64-bit */
 	struct ip_vs_stats64	stats64;

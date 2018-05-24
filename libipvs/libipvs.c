@@ -719,7 +719,7 @@ static int ipvs_services_parse_cb(struct nl_msg *msg, void *arg)
 
 	strncpy(get->entrytable[i].sched_name,
 		nla_get_string(svc_attrs[IPVS_SVC_ATTR_SCHED_NAME]),
-		IP_VS_SCHEDNAME_MAXLEN);
+		IP_VS_SCHEDNAME_MAXLEN - 1);
 
 	if (svc_attrs[IPVS_SVC_ATTR_PE_NAME])
 		strncpy(get->entrytable[i].pe_name,
@@ -1199,7 +1199,7 @@ static int ipvs_daemon_parse_cb(struct nl_msg *msg, void *arg)
 	u[i].state = nla_get_u32(daemon_attrs[IPVS_DAEMON_ATTR_STATE]);
 	strncpy(u[i].mcast_ifn,
 		nla_get_string(daemon_attrs[IPVS_DAEMON_ATTR_MCAST_IFN]),
-		IP_VS_IFNAME_MAXLEN);
+		IP_VS_IFNAME_MAXLEN - 1);
 	u[i].syncid = nla_get_u32(daemon_attrs[IPVS_DAEMON_ATTR_SYNC_ID]);
 
 	a = daemon_attrs[IPVS_DAEMON_ATTR_SYNC_MAXLEN];
@@ -1265,7 +1265,8 @@ ipvs_daemon_t *ipvs_get_daemon(void)
 	}
 	for (i = 0; i < 2; i++) {
 		u[i].state = dmk[i].state;
-		strncpy(u[i].mcast_ifn, dmk[i].mcast_ifn, IP_VS_IFNAME_MAXLEN);
+		strncpy(u[i].mcast_ifn, dmk[i].mcast_ifn,
+			IP_VS_IFNAME_MAXLEN - 1);
 		u[i].syncid = dmk[i].syncid;
 	}
 	return u;
