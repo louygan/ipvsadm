@@ -1145,6 +1145,16 @@ static unsigned int parse_sched_flags(const char *sched, char *optarg)
 			if (strcmp(sched, "sh"))
 				fail(2, "incompatible scheduler flag `%s'",
 				     flag);
+		} else if (!strcmp(flag, "mh-fallback")) {
+			flags |= IP_VS_SVC_F_SCHED_MH_FALLBACK;
+			if (strcmp(sched, "mh"))
+				fail(2, "incompatible scheduler flag `%s'",
+				     flag);
+		} else if (!strcmp(flag, "mh-port")) {
+			flags |= IP_VS_SVC_F_SCHED_MH_PORT;
+			if (strcmp(sched, "mh"))
+				fail(2, "incompatible scheduler flag `%s'",
+				     flag);
 		} else {
 			fail(2, "invalid scheduler flag `%s'", flag);
 		}
@@ -1589,8 +1599,11 @@ static void print_sched_flags(ipvs_service_entry_t *se)
 			strcat(flags, "sh-fallback,");
 		if (se->flags & IP_VS_SVC_F_SCHED_SH_PORT)
 			strcat(flags, "sh-port,");
-		if (se->flags & IP_VS_SVC_F_SCHED3)
-			strcat(flags, "flag-3,");
+	} else if (!strcmp(se->sched_name, "mh")) {
+		if (se->flags & IP_VS_SVC_F_SCHED_MH_FALLBACK)
+			strcat(flags, "mh-fallback,");
+		if (se->flags & IP_VS_SVC_F_SCHED_MH_PORT)
+			strcat(flags, "mh-port,");
 	} else {
 		if (se->flags & IP_VS_SVC_F_SCHED1)
 			strcat(flags, "flag-1,");
