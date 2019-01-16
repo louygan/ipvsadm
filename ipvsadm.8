@@ -270,6 +270,12 @@ busy, it adopts the Shortest Expected Delay policy to assign the job.
 .sp
 \fBfo\fR - Weighted Failover: assigns an incoming job to the server
 with the highest weight that is currently available.
+.sp
+\fBovf\fR - Weighted Overflow: assigns an incoming job to the server
+with the highest weight that is currently available and overflows
+to the next when active connections exceed the node's weight. Note
+that this scheduler might not be suitable for UDP because it only uses
+active connections.
 .TP
 .B -p, --persistent [\fItimeout\fP]
 Specify that a virtual service is persistent. If this option is
