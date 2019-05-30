@@ -187,7 +187,13 @@ static const char* cmdnames[] = {
 #define OPT_MCAST_PORT		0x02000000
 #define OPT_MCAST_TTL		0x04000000
 #define OPT_SYNC_MAXLEN	0x08000000
-#define NUMBER_OF_OPT		28
+#define OPT_TUN_INFO		0x10000000
+#define OPT_TUN_TYPE		0x20000000
+#define OPT_TUN_PORT		0x40000000
+#define OPT_TUN_NOCSUM		0x80000000
+#define OPT_TUN_CSUM		0x100000000
+#define OPT_TUN_REMCSUM		0x200000000
+#define NUMBER_OF_OPT		34
 
 #define OPTC_NUMERIC		0
 #define OPTC_CONNECTION		1
@@ -217,6 +223,12 @@ static const char* cmdnames[] = {
 #define OPTC_MCAST_PORT		25
 #define OPTC_MCAST_TTL		26
 #define OPTC_SYNC_MAXLEN	27
+#define OPTC_TUN_INFO		28
+#define OPTC_TUN_TYPE		29
+#define OPTC_TUN_PORT		30
+#define OPTC_TUN_NOCSUM		31
+#define OPTC_TUN_CSUM		32
+#define OPTC_TUN_REMCSUM	33
 
 static const char* optnames[] = {
 	"numeric",
@@ -247,6 +259,12 @@ static const char* optnames[] = {
 	"mcast-port",
 	"mcast-ttl",
 	"sync-maxlen",
+	"tun-info",
+	"tun-type",
+	"tun-port",
+	"tun-nocsum",
+	"tun-csum",
+	"tun-remcsum",
 };
 
 /*
@@ -259,21 +277,63 @@ static const char* optnames[] = {
  */
 static const char commands_v_options[NUMBER_OF_CMD][NUMBER_OF_OPT] =
 {
-	/*   -n   -c   svc  -s   -p   -M   -r   fwd  -w   -x   -y   -mc  tot  dmn  -st  -rt  thr  -pc  srt  sid  -ex  ops  -pe  -b   grp  port ttl  size */
-/*ADD*/     {'x', 'x', '+', ' ', ' ', ' ', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', ' ', ' ', ' ', 'x', 'x', 'x', 'x'},
-/*EDIT*/    {'x', 'x', '+', ' ', ' ', ' ', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', ' ', ' ', ' ', 'x', 'x', 'x', 'x'},
-/*DEL*/     {'x', 'x', '+', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x'},
-/*FLUSH*/   {'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x'},
-/*LIST*/    {' ', '1', '1', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', '1', '1', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 'x', 'x', 'x', 'x', 'x', 'x', 'x'},
-/*ADDSRV*/  {'x', 'x', '+', 'x', 'x', 'x', '+', ' ', ' ', ' ', ' ', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x'},
-/*DELSRV*/  {'x', 'x', '+', 'x', 'x', 'x', '+', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x'},
-/*EDITSRV*/ {'x', 'x', '+', 'x', 'x', 'x', '+', ' ', ' ', ' ', ' ', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x'},
-/*TIMEOUT*/ {'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x'},
-/*STARTD*/  {'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', ' ', 'x', 'x', 'x', 'x', 'x', 'x', 'x', ' ', 'x', 'x', 'x', 'x', ' ', ' ', ' ', ' '},
-/*STOPD*/   {'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', ' ', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x'},
-/*RESTORE*/ {'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x'},
-/*SAVE*/    {' ', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x'},
-/*ZERO*/    {'x', 'x', ' ', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x'},
+	/*   -n   -c   svc  -s   -p   -M   -r   fwd  -w   -x   -y   -mc  tot  dmn  -st  -rt  thr  -pc  srt  sid  -ex  ops  -pe  -b   grp  port ttl  size tinf type tprt nocs csum remc */
+/*ADD*/     {'x', 'x', '+', ' ', ' ', ' ', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', ' ', ' ', ' ', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x'},
+/*EDIT*/    {'x', 'x', '+', ' ', ' ', ' ', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', ' ', ' ', ' ', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x'},
+/*DEL*/     {'x', 'x', '+', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x'},
+/*FLUSH*/   {'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x'},
+/*LIST*/    {' ', '1', '1', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', '1', '1', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 'x', 'x', 'x', 'x', 'x', 'x', 'x', ' ', 'x', 'x', 'x', 'x', 'x'},
+/*ADDSRV*/  {'x', 'x', '+', 'x', 'x', 'x', '+', ' ', ' ', ' ', ' ', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', ' ', ' ', ' ', ' ', ' '},
+/*DELSRV*/  {'x', 'x', '+', 'x', 'x', 'x', '+', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x'},
+/*EDITSRV*/ {'x', 'x', '+', 'x', 'x', 'x', '+', ' ', ' ', ' ', ' ', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', ' ', ' ', ' ', ' ', ' '},
+/*TIMEOUT*/ {'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x'},
+/*STARTD*/  {'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', ' ', 'x', 'x', 'x', 'x', 'x', 'x', 'x', ' ', 'x', 'x', 'x', 'x', ' ', ' ', ' ', ' ', 'x', 'x', 'x', 'x', 'x', 'x'},
+/*STOPD*/   {'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', ' ', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x'},
+/*RESTORE*/ {'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x'},
+/*SAVE*/    {' ', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x'},
+/*ZERO*/    {'x', 'x', ' ', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x'},
+};
+
+static const char * const tunnames[] = {
+	"ipip",
+	"gue",
+};
+
+static const char * const tunflags[] = {
+	"-c",		/* without checksum */
+	"+c",		/* with checksum */
+	"r+c",		/* with remote checksum */
+};
+
+static const char * const tun_flags_opts[] = {
+	"--tun-nocsum",
+	"--tun-csum",
+	"--tun-remcsum",
+};
+
+static const int tunopts[] = {
+	OPTC_TUN_PORT,
+	OPTC_TUN_NOCSUM,
+	OPTC_TUN_CSUM,
+	OPTC_TUN_REMCSUM,
+};
+
+#define NUMBER_OF_TUN_OPT		4
+#define NA				"n/a"
+
+/*
+ * Table of legal combinations of tunnel types and options.
+ * Key:
+ *  '+'  compulsory
+ *  'x'  illegal
+ *  '1'  exclusive (only one '1' option can be supplied)
+ *  ' '  optional
+ */
+static const char
+tunnel_types_v_options[IP_VS_CONN_F_TUNNEL_TYPE_MAX][NUMBER_OF_TUN_OPT] = {
+	/*  tprt nocs csum remc */
+/* ipip */ {'x', 'x', 'x', 'x'},
+/* gue */  {'+', '1', '1', '1'},
 };
 
 /* printing format flags */
@@ -286,6 +346,7 @@ static const char commands_v_options[NUMBER_OF_CMD][NUMBER_OF_OPT] =
 #define FMT_PERSISTENTCONN	0x0020
 #define FMT_NOSORT		0x0040
 #define FMT_EXACT		0x0080
+#define FMT_TUN_INFO		0x0100
 
 #define SERVICE_NONE		0x0000
 #define SERVICE_ADDR		0x0001
@@ -293,6 +354,9 @@ static const char commands_v_options[NUMBER_OF_CMD][NUMBER_OF_OPT] =
 
 /* default scheduler */
 #define DEF_SCHED		"wlc"
+
+/* default tunnel type */
+#define DEF_TUNNEL_TYPE	"ipip"
 
 /* default multicast interface name */
 #define DEF_MCAST_IFN		"eth0"
@@ -329,6 +393,12 @@ enum {
 	TAG_MCAST_PORT,
 	TAG_MCAST_TTL,
 	TAG_SYNC_MAXLEN,
+	TAG_TUN_INFO,
+	TAG_TUN_TYPE,
+	TAG_TUN_PORT,
+	TAG_TUN_NOCSUM,
+	TAG_TUN_CSUM,
+	TAG_TUN_REMCSUM,
 };
 
 /* various parsing helpers & parsing functions */
@@ -347,11 +417,15 @@ static int parse_netmask(char *buf, u_int32_t *addr);
 static int parse_timeout(char *buf, int min, int max);
 static unsigned int parse_fwmark(char *buf);
 static unsigned int parse_sched_flags(const char *sched, char *optarg);
+static int parse_tun_type(const char *name);
 
 /* check the options based on the commands_v_options table */
 static void generic_opt_check(int command, unsigned long long options);
 static void set_command(int *cmd, const int newcmd);
 static void set_option(unsigned long long *options, int optc);
+
+/* check the options based on the tunnel_types_v_options table */
+static void tunnel_opt_check(int tun_type, unsigned long long options);
 
 static void tryhelp_exit(const char *program, const int exit_status);
 static void usage_exit(const char *program, const int exit_status);
@@ -524,6 +598,18 @@ parse_options(int argc, char **argv, struct ipvs_command_entry *ce,
 		  TAG_MCAST_TTL, NULL, NULL },
 		{ "sync-maxlen", '\0', POPT_ARG_STRING, &optarg,
 		  TAG_SYNC_MAXLEN, NULL, NULL },
+		{ "tun-info", '\0', POPT_ARG_NONE, NULL, TAG_TUN_INFO,
+		  NULL, NULL },
+		{ "tun-type", '\0', POPT_ARG_STRING, &optarg, TAG_TUN_TYPE,
+		  NULL, NULL },
+		{ "tun-port", '\0', POPT_ARG_STRING, &optarg, TAG_TUN_PORT,
+		  NULL, NULL },
+		{ "tun-nocsum", '\0', POPT_ARG_NONE, NULL, TAG_TUN_NOCSUM,
+		  NULL, NULL },
+		{ "tun-csum", '\0', POPT_ARG_NONE, NULL, TAG_TUN_CSUM,
+		  NULL, NULL },
+		{ "tun-remcsum", '\0', POPT_ARG_NONE, NULL, TAG_TUN_REMCSUM,
+		  NULL, NULL },
 		{ NULL, 0, 0, NULL, 0, NULL, NULL }
 	};
 
@@ -802,6 +888,36 @@ parse_options(int argc, char **argv, struct ipvs_command_entry *ce,
 				fail(2, "illegal sync-maxlen specified");
 			ce->daemon.sync_maxlen = parse;
 			break;
+		case TAG_TUN_INFO:
+			set_option(options, OPTC_TUN_INFO);
+			*format |= FMT_TUN_INFO;
+			break;
+		case TAG_TUN_TYPE:
+			set_option(options, OPTC_TUN_TYPE);
+			parse = parse_tun_type(optarg);
+			if (parse == -1)
+				fail(2, "illegal tunnel type specified");
+			ce->dest.tun_type = parse;
+			break;
+		case TAG_TUN_PORT:
+			set_option(options, OPTC_TUN_PORT);
+			parse = string_to_number(optarg, 1, 65535);
+			if (parse == -1)
+				fail(2, "illegal tunnel port specified");
+			ce->dest.tun_port = htons(parse);
+			break;
+		case TAG_TUN_NOCSUM:
+			set_option(options, OPTC_TUN_NOCSUM);
+			ce->dest.tun_flags |= IP_VS_TUNNEL_ENCAP_FLAG_NOCSUM;
+			break;
+		case TAG_TUN_CSUM:
+			set_option(options, OPTC_TUN_CSUM);
+			ce->dest.tun_flags |= IP_VS_TUNNEL_ENCAP_FLAG_CSUM;
+			break;
+		case TAG_TUN_REMCSUM:
+			set_option(options, OPTC_TUN_REMCSUM);
+			ce->dest.tun_flags |= IP_VS_TUNNEL_ENCAP_FLAG_REMCSUM;
+			break;
 		default:
 			fail(2, "invalid option `%s'",
 			     poptBadOption(context, POPT_BADOPTION_NOALIAS));
@@ -876,12 +992,19 @@ static int process_options(int argc, char **argv, int reading_stdin)
 	struct ipvs_command_entry ce;
 	unsigned long long options = OPT_NONE;
 	unsigned int format = FMT_NONE;
+	unsigned int fwd_method;
 	int result = 0;
 
 	memset(&ce, 0, sizeof(struct ipvs_command_entry));
 	ce.cmd = CMD_NONE;
 	/* Set the default weight 1 */
 	ce.dest.weight = 1;
+	/* Set the default tunnel type 0(ipip) */
+	ce.dest.tun_type = 0;
+	/* Set the default tunnel port 0(n/a) */
+	ce.dest.tun_port = 0;
+	/* Set the default tunnel flags 0(nocsum) */
+	ce.dest.tun_flags = 0;
 	/* Set direct routing as default forwarding method */
 	ce.dest.conn_flags = IP_VS_CONN_F_DROUTE;
 	/* Set the default persistent granularity to /32 mask */
@@ -912,6 +1035,8 @@ static int process_options(int argc, char **argv, int reading_stdin)
 	if (ce.cmd == CMD_STARTDAEMON && strlen(ce.daemon.mcast_ifn) == 0)
 		strcpy(ce.daemon.mcast_ifn, DEF_MCAST_IFN);
 
+	fwd_method = ce.dest.conn_flags & IP_VS_CONN_F_FWD_MASK;
+
 	if (ce.cmd == CMD_ADDDEST || ce.cmd == CMD_EDITDEST) {
 		/*
 		 * The destination port must be equal to the service port
@@ -919,15 +1044,25 @@ static int process_options(int argc, char **argv, int reading_stdin)
 		 * Don't worry about this if fwmark is used.
 		 */
 		if (!ce.svc.fwmark &&
-		    (ce.dest.conn_flags == IP_VS_CONN_F_TUNNEL
-		     || ce.dest.conn_flags == IP_VS_CONN_F_DROUTE))
+		    (fwd_method == IP_VS_CONN_F_TUNNEL ||
+		     fwd_method == IP_VS_CONN_F_DROUTE))
 			ce.dest.port = ce.svc.port;
 
 		/* Tunneling allows different address family */
 		if (ce.dest.af != ce.svc.af &&
-		    ce.dest.conn_flags != IP_VS_CONN_F_TUNNEL)
+		    fwd_method != IP_VS_CONN_F_TUNNEL)
 			fail(2, "Different address family is allowed only "
 			     "for tunneling servers");
+
+		/* Only tunneling allows tunnel options */
+		if (((options & (OPT_TUN_TYPE | OPT_TUN_PORT)) ||
+		     (options & (OPT_TUN_NOCSUM | OPT_TUN_CSUM)) ||
+		     (options & OPT_TUN_REMCSUM)) &&
+		    fwd_method != IP_VS_CONN_F_TUNNEL)
+			fail(2,
+			     "Tunnel options conflict with forward method");
+
+		tunnel_opt_check(ce.dest.tun_type, options);
 	}
 
 	switch (ce.cmd) {
@@ -1192,6 +1327,20 @@ static unsigned int parse_sched_flags(const char *sched, char *optarg)
 	return flags;
 }
 
+static int parse_tun_type(const char *tun_type)
+{
+	int type = -1;
+
+	if (!strcmp(tun_type, "ipip"))
+		type = IP_VS_CONN_F_TUNNEL_TYPE_IPIP;
+	else if (!strcmp(tun_type, "gue"))
+		type = IP_VS_CONN_F_TUNNEL_TYPE_GUE;
+	else
+		type = -1;
+
+	return type;
+}
+
 static void
 generic_opt_check(int command, unsigned long long options)
 {
@@ -1221,6 +1370,41 @@ generic_opt_check(int command, unsigned long long options)
 				fail(2, "The option '%s' conflicts with the "
 				     "'%s' option in the '%s' command",
 				     optnames[j], optnames[last], cmdnames[i]);
+			}
+		}
+	}
+}
+
+static void
+tunnel_opt_check(int tun_type, unsigned long long options)
+{
+	int i, j, k;
+	int last = 0, count = 0;
+
+	/* Check that tunnel types are valid with options. */
+	i = tun_type;
+
+	for (j = 0; j < NUMBER_OF_TUN_OPT; j++) {
+		k = tunopts[j];
+		if (!(options & (1ULL << k))) {
+			if (tunnel_types_v_options[i][j] == '+')
+				fail(2, "You need to supply the '%s' "
+				     "option for the '%s' tunnel type",
+				     optnames[k], tunnames[i]);
+		} else {
+			if (tunnel_types_v_options[i][j] == 'x')
+				fail(2, "Illegal '%s' option with "
+				     "the '%s' tunnel type",
+				     optnames[k], tunnames[i]);
+			if (tunnel_types_v_options[i][j] == '1') {
+				count++;
+				if (count == 1) {
+					last = k;
+					continue;
+				}
+				fail(2, "The option '%s' conflicts with the "
+				     "'%s' option in the '%s' tunnel type",
+				     optnames[k], optnames[last], tunnames[i]);
 			}
 		}
 	}
@@ -1322,6 +1506,12 @@ static void usage_exit(const char *program, const int exit_status)
 		"  --gatewaying   -g                   gatewaying (direct routing) (default)\n"
 		"  --ipip         -i                   ipip encapsulation (tunneling)\n"
 		"  --masquerading -m                   masquerading (NAT)\n"
+		"  --tun-type      type                one of ipip|gue,\n"
+		"                                      the default tunnel type is %s.\n"
+		"  --tun-port      port                tunnel destination port\n"
+		"  --tun-nocsum                        tunnel encapsulation without checksum\n"
+		"  --tun-csum                          tunnel encapsulation with checksum\n"
+		"  --tun-remcsum                       tunnel encapsulation with remote checksum\n"
 		"  --weight       -w weight            capacity of real server\n"
 		"  --u-threshold  -x uthreshold        upper threshold of connections\n"
 		"  --l-threshold  -y lthreshold        lower threshold of connections\n"
@@ -1333,12 +1523,13 @@ static void usage_exit(const char *program, const int exit_status)
 		"  --exact                             expand numbers (display exact values)\n"
 		"  --thresholds                        output of thresholds information\n"
 		"  --persistent-conn                   output of persistent connection info\n"
+		"  --tun-info                          output of tunnel information\n"
 		"  --nosort                            disable sorting output of service/server entries\n"
 		"  --sort                              does nothing, for backwards compatibility\n"
 		"  --ops          -o                   one-packet scheduling\n"
 		"  --numeric      -n                   numeric output of addresses and ports\n"
 		"  --sched-flags  -b flags             scheduler flags (comma-separated)\n",
-		DEF_SCHED);
+		DEF_SCHED, DEF_TUNNEL_TYPE);
 
 	fprintf(stream,
 		"Daemon Options:\n"
@@ -1586,6 +1777,36 @@ static inline char *fwd_switch(unsigned flags)
 }
 
 
+static inline char *fwd_tun_info(ipvs_dest_entry_t *e)
+{
+	char *info = malloc(16);
+
+	if (!info)
+		return NULL;
+
+	switch (e->conn_flags & IP_VS_CONN_F_FWD_MASK) {
+	case IP_VS_CONN_F_TUNNEL:
+		switch (e->tun_type) {
+		case IP_VS_CONN_F_TUNNEL_TYPE_IPIP:
+			snprintf(info, 16, "%s", tunnames[e->tun_type]);
+			break;
+		case IP_VS_CONN_F_TUNNEL_TYPE_GUE:
+			snprintf(info, 16, "%s:%d:%s",
+				 tunnames[e->tun_type], ntohs(e->tun_port),
+				 tunflags[e->tun_flags]);
+			break;
+		default:
+			free(info);
+			return NULL;
+		}
+		break;
+	default:
+		free(info);
+		return NULL;
+	}
+	return info;
+}
+
 static void print_largenum(unsigned long long i, unsigned int format)
 {
 	if (format & FMT_EXACT) {
@@ -1662,11 +1883,46 @@ static void print_title(unsigned int format)
 		       "  -> RemoteAddress:Port\n",
 		       "Prot LocalAddress:Port",
 		       "Weight", "PersistConn", "ActiveConn", "InActConn");
+	else if ((format & FMT_TUN_INFO))
+		printf("Prot LocalAddress:Port Scheduler Flags\n"
+		       "  -> RemoteAddress:Port           Forward TunnelInfo    Weight ActiveConn InActConn\n");
 	else if (!(format & FMT_RULE))
 		printf("Prot LocalAddress:Port Scheduler Flags\n"
 		       "  -> RemoteAddress:Port           Forward Weight ActiveConn InActConn\n");
 }
 
+
+static inline void
+print_tunnel_rule(char *svc_name, char *dname, ipvs_dest_entry_t *e)
+{
+	switch (e->tun_type) {
+	case IP_VS_CONN_F_TUNNEL_TYPE_GUE:
+		printf("-a %s -r %s %s -w %d --tun-type %s --tun-port %d %s\n",
+		       svc_name,
+		       dname,
+		       fwd_switch(e->conn_flags),
+		       e->weight,
+		       tunnames[e->tun_type],
+		       ntohs(e->tun_port),
+		       tun_flags_opts[e->tun_flags]);
+		break;
+	case IP_VS_CONN_F_TUNNEL_TYPE_IPIP:
+		printf("-a %s -r %s %s -w %d --tun-type %s\n",
+		       svc_name,
+		       dname,
+		       fwd_switch(e->conn_flags),
+		       e->weight,
+		       tunnames[e->tun_type]);
+		break;
+	default:
+		printf("-a %s -r %s %s -w %d\n",
+		       svc_name,
+		       dname,
+		       fwd_switch(e->conn_flags),
+		       e->weight);
+		break;
+	}
+}
 
 static void
 print_service_entry(ipvs_service_entry_t *se, unsigned int format)
@@ -1789,6 +2045,7 @@ print_service_entry(ipvs_service_entry_t *se, unsigned int format)
 	for (i = 0; i < d->num_dests; i++) {
 		char *dname;
 		ipvs_dest_entry_t *e = &d->entrytable[i];
+		unsigned int fwd_method = e->conn_flags & IP_VS_CONN_F_FWD_MASK;
 
 		if (!(dname = addrport_to_anyname(e->af, &(e->addr), ntohs(e->port),
 						  se->protocol, format))) {
@@ -1799,8 +2056,15 @@ print_service_entry(ipvs_service_entry_t *se, unsigned int format)
 			dname[28] = '\0';
 
 		if (format & FMT_RULE) {
-			printf("-a %s -r %s %s -w %d\n", svc_name, dname,
-			       fwd_switch(e->conn_flags), e->weight);
+			if (fwd_method == IP_VS_CONN_F_TUNNEL) {
+				print_tunnel_rule(svc_name, dname, e);
+			} else {
+				printf("-a %s -r %s %s -w %d\n",
+				       svc_name,
+				       dname,
+				       fwd_switch(e->conn_flags),
+				       e->weight);
+			}
 		} else if (format & FMT_STATS) {
 			printf("  -> %-28s", dname);
 			print_largenum(e->stats64.conns, format);
@@ -1825,6 +2089,15 @@ print_service_entry(ipvs_service_entry_t *se, unsigned int format)
 			printf("  -> %-28s %-9u %-11u %-10u %-10u\n", dname,
 			       e->weight, e->persistconns,
 			       e->activeconns, e->inactconns);
+		} else if (format & FMT_TUN_INFO) {
+			char *ti = fwd_tun_info(e);
+
+			printf("  -> %-28s %-7s %-13s %-6d %-10u %-10u\n",
+			       dname, fwd_name(e->conn_flags),
+			       ti ? : NA,
+			       e->weight, e->activeconns, e->inactconns);
+
+			free(ti);
 		} else
 			printf("  -> %-28s %-7s %-6d %-10u %-10u\n",
 			       dname, fwd_name(e->conn_flags),

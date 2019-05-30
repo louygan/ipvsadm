@@ -390,6 +390,9 @@ static int ipvs_nl_fill_dest_attr(struct nl_msg *msg, ipvs_dest_t *dst)
 	NLA_PUT_U16(msg, IPVS_DEST_ATTR_PORT, dst->port);
 	NLA_PUT_U32(msg, IPVS_DEST_ATTR_FWD_METHOD, dst->conn_flags & IP_VS_CONN_F_FWD_MASK);
 	NLA_PUT_U32(msg, IPVS_DEST_ATTR_WEIGHT, dst->weight);
+	NLA_PUT_U8(msg, IPVS_DEST_ATTR_TUN_TYPE, dst->tun_type);
+	NLA_PUT_U16(msg, IPVS_DEST_ATTR_TUN_PORT, dst->tun_port);
+	NLA_PUT_U16(msg, IPVS_DEST_ATTR_TUN_FLAGS, dst->tun_flags);
 	NLA_PUT_U32(msg, IPVS_DEST_ATTR_U_THRESH, dst->u_threshold);
 	NLA_PUT_U32(msg, IPVS_DEST_ATTR_L_THRESH, dst->l_threshold);
 
@@ -856,6 +859,9 @@ static int ipvs_dests_parse_cb(struct nl_msg *msg, void *arg)
 	struct nlattr *attrs[IPVS_CMD_ATTR_MAX + 1];
 	struct nlattr *dest_attrs[IPVS_DEST_ATTR_MAX + 1];
 	struct nlattr *attr_addr_family = NULL;
+	struct nlattr *attr_tun_type = NULL;
+	struct nlattr *attr_tun_port = NULL;
+	struct nlattr *attr_tun_flags = NULL;
 	struct ip_vs_get_dests **dp = (struct ip_vs_get_dests **)arg;
 	struct ip_vs_get_dests *d = (struct ip_vs_get_dests *)*dp;
 	int i = d->num_dests;
@@ -888,6 +894,15 @@ static int ipvs_dests_parse_cb(struct nl_msg *msg, void *arg)
 	d->entrytable[i].port = nla_get_u16(dest_attrs[IPVS_DEST_ATTR_PORT]);
 	d->entrytable[i].conn_flags = nla_get_u32(dest_attrs[IPVS_DEST_ATTR_FWD_METHOD]);
 	d->entrytable[i].weight = nla_get_u32(dest_attrs[IPVS_DEST_ATTR_WEIGHT]);
+	attr_tun_type = dest_attrs[IPVS_DEST_ATTR_TUN_TYPE];
+	if (attr_tun_type)
+		d->entrytable[i].tun_type = nla_get_u8(attr_tun_type);
+	attr_tun_port = dest_attrs[IPVS_DEST_ATTR_TUN_PORT];
+	if (attr_tun_port)
+		d->entrytable[i].tun_port = nla_get_u16(attr_tun_port);
+	attr_tun_flags = dest_attrs[IPVS_DEST_ATTR_TUN_FLAGS];
+	if (attr_tun_flags)
+		d->entrytable[i].tun_flags = nla_get_u16(attr_tun_flags);
 	d->entrytable[i].u_threshold = nla_get_u32(dest_attrs[IPVS_DEST_ATTR_U_THRESH]);
 	d->entrytable[i].l_threshold = nla_get_u32(dest_attrs[IPVS_DEST_ATTR_L_THRESH]);
 	d->entrytable[i].activeconns = nla_get_u32(dest_attrs[IPVS_DEST_ATTR_ACTIVE_CONNS]);
