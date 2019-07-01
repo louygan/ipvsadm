@@ -297,6 +297,7 @@ static const char commands_v_options[NUMBER_OF_CMD][NUMBER_OF_OPT] =
 static const char * const tunnames[] = {
 	"ipip",
 	"gue",
+	"gre",
 };
 
 static const char * const tunflags[] = {
@@ -334,6 +335,7 @@ tunnel_types_v_options[IP_VS_CONN_F_TUNNEL_TYPE_MAX][NUMBER_OF_TUN_OPT] = {
 	/*  tprt nocs csum remc */
 /* ipip */ {'x', 'x', 'x', 'x'},
 /* gue */  {'+', '1', '1', '1'},
+/* gre */  {'x', '1', '1', 'x'},
 };
 
 /* printing format flags */
@@ -1335,6 +1337,8 @@ static int parse_tun_type(const char *tun_type)
 		type = IP_VS_CONN_F_TUNNEL_TYPE_IPIP;
 	else if (!strcmp(tun_type, "gue"))
 		type = IP_VS_CONN_F_TUNNEL_TYPE_GUE;
+	else if (!strcmp(tun_type, "gre"))
+		type = IP_VS_CONN_F_TUNNEL_TYPE_GRE;
 	else
 		type = -1;
 
@@ -1506,7 +1510,7 @@ static void usage_exit(const char *program, const int exit_status)
 		"  --gatewaying   -g                   gatewaying (direct routing) (default)\n"
 		"  --ipip         -i                   ipip encapsulation (tunneling)\n"
 		"  --masquerading -m                   masquerading (NAT)\n"
-		"  --tun-type      type                one of ipip|gue,\n"
+		"  --tun-type      type                one of ipip|gue|gre,\n"
 		"                                      the default tunnel type is %s.\n"
 		"  --tun-port      port                tunnel destination port\n"
 		"  --tun-nocsum                        tunnel encapsulation without checksum\n"
@@ -1795,6 +1799,11 @@ static inline char *fwd_tun_info(ipvs_dest_entry_t *e)
 				 tunnames[e->tun_type], ntohs(e->tun_port),
 				 tunflags[e->tun_flags]);
 			break;
+		case IP_VS_CONN_F_TUNNEL_TYPE_GRE:
+			snprintf(info, 16, "%s:%s",
+				 tunnames[e->tun_type],
+				 tunflags[e->tun_flags]);
+			break;
 		default:
 			free(info);
 			return NULL;
@@ -1896,6 +1905,15 @@ static inline void
 print_tunnel_rule(char *svc_name, char *dname, ipvs_dest_entry_t *e)
 {
 	switch (e->tun_type) {
+	case IP_VS_CONN_F_TUNNEL_TYPE_GRE:
+		printf("-a %s -r %s %s -w %d --tun-type %s %s\n",
+		       svc_name,
+		       dname,
+		       fwd_switch(e->conn_flags),
+		       e->weight,
+		       tunnames[e->tun_type],
+		       tun_flags_opts[e->tun_flags]);
+		break;
 	case IP_VS_CONN_F_TUNNEL_TYPE_GUE:
 		printf("-a %s -r %s %s -w %d --tun-type %s --tun-port %d %s\n",
 		       svc_name,

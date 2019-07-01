@@ -342,7 +342,7 @@ the request sent to the virtual service.
 .ti +8
 .B --tun-type \fItun-type\fP
 .ti +16
-\fItun-type\fP is one of \fIipip\fP|\fIgue\fP.
+\fItun-type\fP is one of \fIipip\fP|\fIgue\fP|\fIgre\fP.
 The default value of \fItun-type\fP is \fIipip\fP.
 .sp
 .ti +8
@@ -354,14 +354,14 @@ Only valid for \fItun-type\fP \fIgue\fP.
 .ti +8
 .B --tun-nocsum
 .ti +16
-Specify that UDP checksums are disabled. This is the default.
-Only valid for \fItun-type\fP \fIgue\fP.
+Specify that tunnel checksums are disabled. This is the default.
+Only valid for \fItun-type\fP \fIgue\fP and \fIgre\fP.
 .sp
 .ti +8
 .B --tun-csum
 .ti +16
-Specify that UDP checksums are enabled.
-Only valid for \fItun-type\fP \fIgue\fP.
+Specify that tunnel checksums are enabled.
+Only valid for \fItun-type\fP \fIgue\fP and \fIgre\fP.
 .sp
 .ti +8
 .B --tun-remcsum
@@ -622,6 +622,15 @@ echo "
 -a -t 207.175.44.110:80 -r 192.168.10.4:80 -i --tun-type gue --tun-port 6078
 -a -t 207.175.44.110:80 -r 192.168.10.5:80 -i --tun-type gue --tun-port 6079
 " | ipvsadm -R
+.fi
+.SH EXAMPLE 4 - Virtual Service with GRE Tunneling
+The following commands configure a Linux Director to use GRE
+encapsulation.
+.PP
+.nf
+ipvsadm -A -t 10.0.0.1:80 -s rr
+ipvsadm -a -t 10.0.0.1:80 -r 192.168.11.1:80 -i --tun-type gre \
+--tun-csum
 .fi
 .SH IPv6
 IPv6 addresses should be surrounded by square brackets ([ and ]).
