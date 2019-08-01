@@ -94,11 +94,11 @@ The command has two basic formats for execution:
 The first format manipulates a virtual service and the algorithm for
 assigning service requests to real servers. Optionally, a persistent
 timeout and network mask for the granularity of a persistent service
-may be specified. The second format manipulates a real server that is
-associated with an existing virtual service. When specifying a real
-server, the packet-forwarding method and the weight of the real
-server, relative to other real servers for the virtual service, may be
-specified, otherwise defaults will be used.
+and a persistence engine may be specified. The second format manipulates
+a real server that is associated with an existing virtual service.
+When specifying a real server, the packet-forwarding method and the
+weight of the real server, relative to other real servers for the
+virtual service, may be specified, otherwise defaults will be used.
 .SS COMMANDS
 \fBipvsadm\fR(8) recognises the commands described below. Upper-case
 commands maintain virtual services. Lower-case commands maintain real
@@ -312,6 +312,10 @@ granularity is per client host. Less specific netmasks may be used to
 resolve problems with non-persistent cache clusters on the client side.
 IPv6 netmasks should be specified as a prefix length between 1 and 128.
 The default prefix length is 128.
+.TP
+.B --pe \fIpersistence-engine\fP
+Specify an alternative persistence engine to be used. Currently the
+only alternative persistence engine available is sip.
 .TP
 .B -b, --sched-flags \fIsched-flags\fP
 Set scheduler flags for this virtual server.  \fIsched-flags\fP is a
