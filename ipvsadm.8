@@ -196,9 +196,10 @@ Use SCTP service. See the -t|--tcp-service for the description of the
 .TP
 .B -f, --fwmark-service \fIinteger\fP
 Use a firewall-mark, an integer value greater than zero, to denote a
-virtual service instead of an address, port and protocol (UDP or
-TCP). The marking of packets with a firewall-mark is configured using
-the -m|--mark option to \fBiptables\fR(8). It can be used to build a
+virtual service instead of an address, port and protocol (UDP, TCP or
+SCTP). The marking of packets with a firewall-mark is configured using
+the -m|--mark option to \fBiptables\fR(8), the meta mark set \fIvalue\fR
+option to \fBnft\fR(8) or via an eBPF program. It can be used to build a
 virtual service associated with the same real servers, covering
 multiple IP address, port and protocol triplets. If IPv6 addresses
 are used, the -6 option must be used.
