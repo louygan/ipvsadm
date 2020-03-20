@@ -1957,14 +1957,14 @@ print_service_entry(ipvs_service_entry_t *se, unsigned int format)
 	if (se->fwmark) {
 		if (format & FMT_RULE)
 			if (se->af == AF_INET6)
-				sprintf(svc_name, "-f %d -6", se->fwmark);
+				sprintf(svc_name, "-f %u -6", se->fwmark);
 			else
-				sprintf(svc_name, "-f %d", se->fwmark);
+				sprintf(svc_name, "-f %u", se->fwmark);
 		else
 			if (se->af == AF_INET6)
-				sprintf(svc_name, "FWM  %d IPv6", se->fwmark);
+				sprintf(svc_name, "FWM  %u IPv6", se->fwmark);
 			else
-				sprintf(svc_name, "FWM  %d", se->fwmark);
+				sprintf(svc_name, "FWM  %u", se->fwmark);
 	} else {
 		char *vname;
 
