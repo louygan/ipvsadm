@@ -36,6 +36,9 @@
 #define IP_VS_SVC_F_SCHED_SH_FALLBACK	IP_VS_SVC_F_SCHED1 /* SH fallback */
 #define IP_VS_SVC_F_SCHED_SH_PORT	IP_VS_SVC_F_SCHED2 /* SH use port */
 
+#define IP_VS_SVC_F_SCHED_MH_FALLBACK	IP_VS_SVC_F_SCHED1 /* MH fallback */
+#define IP_VS_SVC_F_SCHED_MH_PORT	IP_VS_SVC_F_SCHED2 /* MH use port */
+
 
 /*
  *      IPVS sync daemon states
@@ -104,6 +107,19 @@
 
 #define IP_VS_PEDATA_MAXLEN	255
 
+/* Tunnel types */
+enum {
+	IP_VS_CONN_F_TUNNEL_TYPE_IPIP = 0,	/* IPIP */
+	IP_VS_CONN_F_TUNNEL_TYPE_GUE,		/* GUE */
+	IP_VS_CONN_F_TUNNEL_TYPE_GRE,		/* GRE */
+	IP_VS_CONN_F_TUNNEL_TYPE_MAX,
+};
+
+/* Tunnel encapsulation flags */
+#define IP_VS_TUNNEL_ENCAP_FLAG_NOCSUM		(0)
+#define IP_VS_TUNNEL_ENCAP_FLAG_CSUM		(1 << 0)
+#define IP_VS_TUNNEL_ENCAP_FLAG_REMCSUM		(1 << 1)
+
 union nf_inet_addr {
         __u32           all[4];
         __be32          ip;
@@ -144,7 +160,7 @@ struct ip_vs_service_user {
 	__be32			netmask;	/* persistent netmask */
 	u_int16_t		af;
 	union nf_inet_addr	addr;
-	char			pe_name[IP_VS_PENAME_MAXLEN];
+	char			pe_name[IP_VS_PENAME_MAXLEN + 1];
 };
 
 struct ip_vs_dest_kern {
@@ -175,6 +191,11 @@ struct ip_vs_dest_user {
 	u_int32_t		l_threshold;	/* lower threshold */
 	u_int16_t		af;
 	union nf_inet_addr	addr;
+
+	/* tunnel info */
+	u_int16_t		tun_type;	/* tunnel type */
+	__be16			tun_port;	/* tunnel port */
+	u_int16_t		tun_flags;	/* tunnel flags */
 };
 
 /*
@@ -267,7 +288,7 @@ struct ip_vs_service_entry {
 
 	u_int16_t		af;
 	union nf_inet_addr	addr;
-	char			pe_name[IP_VS_PENAME_MAXLEN];
+	char			pe_name[IP_VS_PENAME_MAXLEN + 1];
 
 	/* statistics, 64-bit */
 	struct ip_vs_stats64	stats64;
@@ -310,6 +331,11 @@ struct ip_vs_dest_entry {
 
 	/* statistics, 64-bit */
 	struct ip_vs_stats64	stats64;
+
+	/* tunnel info */
+	u_int16_t		tun_type;	/* tunnel type */
+	__be16			tun_port;	/* tunnel port */
+	u_int16_t		tun_flags;	/* tunnel flags */
 };
 
 /* The argument to IP_VS_SO_GET_DESTS */
@@ -523,6 +549,12 @@ enum {
 	IPVS_DEST_ATTR_ADDR_FAMILY,	/* Address family of address */
 
 	IPVS_DEST_ATTR_STATS64,		/* nested attribute for dest stats */
+
+	IPVS_DEST_ATTR_TUN_TYPE,	/* tunnel type */
+
+	IPVS_DEST_ATTR_TUN_PORT,	/* tunnel port */
+
+	IPVS_DEST_ATTR_TUN_FLAGS,	/* tunnel flags */
 
 	__IPVS_DEST_ATTR_MAX,
 };
