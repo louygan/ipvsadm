@@ -6,8 +6,11 @@ RUN echo "@edge http://nl.alpinelinux.org/alpine/edge/main" >> /etc/apk/reposito
 
 RUN apk add --no-cache build-base alpine-sdk linux-headers libnl3-dev popt-dev autoconf automake libtool bison flex upx
 
-# make sure libnl have libnl source code and on tag libnl3_8_0
-COPY libnl /opt/libnl
-RUN cd /opt/libnl &&  ./autogen.sh && ./configure && make && make install
+## make sure libnl have libnl source code and on tag libnl3_8_0
+#COPY libnl /opt/libnl
+#RUN cd /opt/libnl &&  ./autogen.sh && ./configure && make && make install
+
+RUN cd /opt && wget https://github.com/thom311/libnl/archive/refs/tags/libnl3_8_0.tar.gz && tar xvfz libnl3_8_0.tar.gz && cd libnl-libnl3_8_0 \
+  &&  ./autogen.sh && ./configure && make && make install
 
 RUN cd /opt && wget http://ftp.rpm.org/popt/releases/popt-1.x/popt-1.19.tar.gz && tar xvfz popt-1.19.tar.gz && cd popt-1.19 && ./configure && make && make install
